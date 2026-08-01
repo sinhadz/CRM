@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Write4U - CARS24 CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+        
+        /* ===== LOGIN ===== */
+        .login-container{max-width:420px;margin:60px auto;padding:40px 32px;background:white;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+        .login-header{text-align:center;margin-bottom:32px}
+        .login-header h1{font-size:28px;font-weight:700;color:#1a1a2e}
+        .login-header h1 span{color:#0057FF}
+        .login-header p{color:#64748b;font-weight:500}
+        .form-group{margin-bottom:16px}
+        .form-group label{display:block;font-weight:600;margin-bottom:6px;font-size:14px}
+        .form-group input{width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:8px;font-size:15px;font-family:inherit;transition:all 0.2s}
+        .form-group input:focus{outline:none;border-color:#0057FF;box-shadow:0 0 0 3px rgba(0,87,255,0.12)}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;border:none;border-radius:8px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s}
+        .btn-primary{background:#0057FF;color:white;width:100%}
+        .btn-primary:hover{background:#0044CC;transform:translateY(-1px)}
+        .btn-primary:disabled{opacity:0.6;cursor:not-allowed}
+        .btn-success{background:#16A34A;color:white}
+        .btn-success:hover{background:#15803D}
+        .btn-warning{background:#F59E0B;color:white}
+        .btn-warning:hover{background:#D97706}
+        .btn-danger{background:#DC2626;color:white}
+        .btn-danger:hover{background:#B91C1C}
+        .btn-outline{background:transparent;border:2px solid #e2e8f0;color:#1a1a2e;width:auto;padding:6px 14px;font-size:13px}
+        .btn-outline:hover{background:#f0f2f5}
+        .btn-sm{padding:6px 14px;font-size:13px;width:auto}
+        .btn-block{width:100%}
+        .error-message{color:#dc2626;font-size:14px;margin-top:8px;text-align:center}
+        .success-message{color:#16A34A;font-size:14px;margin-top:8px;text-align:center}
+        .debug-box{background:#f8f9fa;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-top:16px;font-size:12px;font-family:monospace;max-height:200px;overflow:auto;display:none}
+        .debug-box.active{display:block}
+        .footer{text-align:center;font-size:12px;color:#94a3b8;margin-top:20px}
+        .screen{display:none}
+        .screen.active{display:block}
+        
+        /* ===== APP HEADER ===== */
+        .app-header{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:white;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:100}
+        .header-left{display:flex;align-items:center;gap:12px}
+        .app-title{font-weight:700;font-size:18px}
+        .app-version{font-size:11px;color:#94a3b8;background:#f0f2f5;padding:2px 10px;border-radius:40px}
+        .employee-badge{display:flex;align-items:center;gap:8px;padding:4px 16px;background:#e8eeff;border-radius:40px;font-weight:500;font-size:14px}
+        .employee-badge i{color:#0057FF}
+        .header-right{display:flex;gap:8px;align-items:center}
+        
+        /* ===== NAV ===== */
+        .nav{display:flex;gap:4px;padding:8px 24px;background:white;border-bottom:1px solid #e2e8f0;overflow-x:auto}
+        .nav-item{display:flex;align-items:center;gap:8px;padding:8px 20px;border:none;background:transparent;font-family:inherit;font-weight:500;font-size:14px;color:#64748b;cursor:pointer;border-radius:8px;transition:all 0.2s;white-space:nowrap}
+        .nav-item:hover{background:#f0f2f5;color:#1a1a2e}
+        .nav-item.active{background:#e8eeff;color:#0057FF;font-weight:600}
+        .nav-item i{font-size:15px}
+        
+        /* ===== CONTENT ===== */
+        .app-content{padding:24px;max-width:1200px;margin:0 auto}
+        .view{display:none;animation:fadeIn 0.3s ease}
+        .view.active{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .view-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+        .view-header h2{font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px}
+        .view-header h2 i{color:#0057FF}
+        
+        /* ===== DASHBOARD ===== */
+        .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+        .stat-card{background:white;padding:16px 20px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.2s}
+        .stat-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-2px)}
+        .stat-value{font-size:26px;font-weight:700;letter-spacing:-0.5px}
+        .stat-label{font-size:13px;color:#64748b;font-weight:500}
+        .time-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+        .time-card{background:white;padding:14px 20px;border-radius:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+        .time-card.highlight{border:2px solid #16A34A;background:#f0fdf4}
+        .time-label{font-size:13px;color:#64748b;font-weight:500}
+        .time-value{font-size:20px;font-weight:700;margin-top:4px}
+        
+        /* ===== LEADS ===== */
+        .leads-list{display:grid;gap:12px}
+        .lead-item{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.2s}
+        .lead-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateX(4px);border-left:4px solid #0057FF}
+        .lead-item-info{display:flex;flex-direction:column;gap:2px}
+        .lead-item-name{font-weight:600;font-size:15px}
+        .lead-item-details{font-size:13px;color:#64748b}
+        .lead-item-right{display:flex;align-items:center;gap:12px}
+        .status-badge{padding:4px 14px;border-radius:40px;font-size:12px;font-weight:600}
+        .status-pending{background:#fef3c7;color:#d97706}
+        .status-done{background:#dcfce7;color:#15803d}
+        .status-followup{background:#dbeafe;color:#1d4ed8}
+        
+        /* ===== LEAD DETAIL ===== */
+        .lead-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+        @media(max-width:768px){.lead-detail-grid{grid-template-columns:1fr}}
+        .info-card{background:white;padding:20px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+        .info-card h3{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+        .info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f2f5}
+        .info-row:last-child{border-bottom:none}
+        .info-label{color:#64748b;font-weight:500;font-size:13px}
+        .info-value{font-weight:500;text-align:right;max-width:60%;word-break:break-word}
+        .form-control{width:100%;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:14px;transition:all 0.2s;background:white}
+        .form-control:focus{outline:none;border-color:#0057FF;box-shadow:0 0 0 3px rgba(0,87,255,0.12)}
+        select.form-control{appearance:auto}
+        textarea.form-control{resize:vertical;min-height:80px}
+        .hidden{display:none !important}
+        .flex{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+        .flex .btn{flex:1;min-width:100px}
+        
+        /* ===== BREAK OVERLAY ===== */
+        .overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000}
+        .overlay-content{text-align:center;color:white;padding:40px;max-width:420px}
+        .break-icon{font-size:72px;margin-bottom:16px;color:#F59E0B}
+        .overlay-content h2{font-size:32px;font-weight:700;margin-bottom:8px}
+        .overlay-content p{color:rgba(255,255,255,0.8);margin-bottom:24px}
+        
+        /* ===== TOAST ===== */
+        .toast-container{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px;max-width:380px;width:100%}
+        .toast{padding:12px 16px;background:white;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);border-left:4px solid #0057FF;animation:slideIn 0.3s ease;display:flex;align-items:center;gap:12px}
+        .toast-success{border-left-color:#16A34A}
+        .toast-error{border-left-color:#DC2626}
+        .toast-warning{border-left-color:#F59E0B}
+        .toast-icon{font-size:18px}
+        .toast-success .toast-icon{color:#16A34A}
+        .toast-error .toast-icon{color:#DC2626}
+        .toast-warning .toast-icon{color:#F59E0B}
+        .toast-message{font-weight:500;flex:1;font-size:14px}
+        @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        
+        /* ===== EMPLOYEE MANAGEMENT ===== */
+        .emp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+        @media(max-width:1024px){.emp-grid{grid-template-columns:1fr}}
+        .emp-section{background:white;padding:20px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+        .emp-section h3{font-size:16px;font-weight:600;margin-bottom:16px}
+        .emp-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+        .emp-item:hover{background:#e8eeff}
+        .emp-id{font-weight:600;font-size:13px;color:#0057FF}
+        .emp-name{font-weight:500}
+        .emp-email{color:#64748b;font-size:13px}
+        .emp-role{font-size:12px;padding:2px 12px;border-radius:40px;background:#e8eeff;color:#0057FF;font-weight:500}
+        .emp-status{font-size:12px;padding:2px 12px;border-radius:40px;font-weight:500}
+        .emp-status.active{background:#dcfce7;color:#15803d}
+        .emp-status.inactive{background:#fee2e2;color:#dc2626}
+        .emp-actions{display:flex;gap:6px;flex-wrap:wrap}
+        
+        .email-request-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+        .req-info{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+        .req-id{font-weight:600;font-size:12px;color:#0057FF}
+        .req-old{color:#64748b;font-size:13px}
+        .req-new{color:#16A34A;font-weight:500;font-size:13px}
+        
+        /* ===== REPORTS ===== */
+        .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+        @media(max-width:768px){.report-grid{grid-template-columns:1fr}}
+        .report-card{background:white;padding:20px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+        .report-card h4{font-size:16px;font-weight:600;margin-bottom:16px}
+        .report-content{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .report-stat{padding:12px;background:#f8f9fa;border-radius:8px}
+        .report-label{font-size:12px;color:#64748b;font-weight:500}
+        .report-value{font-size:20px;font-weight:700;margin-top:2px}
+        
+        /* ===== UTILITIES ===== */
+        .text-muted{color:#64748b}
+        .text-center{text-align:center}
+        .mt-16{margin-top:16px}
+        .mb-16{margin-bottom:16px}
+        .gap-8{gap:8px}
+        
+        /* ===== RESPONSIVE ===== */
+        @media(max-width:768px){
+            .app-header{padding:10px 16px;flex-wrap:wrap;gap:8px}
+            .header-center{order:3;width:100%;display:flex;justify-content:center}
+            .employee-badge{width:100%;justify-content:center}
+            .nav{padding:8px 16px;overflow-x:auto}
+            .app-content{padding:16px}
+            .grid-4{grid-template-columns:repeat(2,1fr)}
+            .time-grid{grid-template-columns:repeat(2,1fr)}
+            .login-container{margin:30px 16px;padding:24px 20px}
+            .flex .btn{min-width:80px}
+        }
+        @media(max-width:480px){
+            .grid-4{grid-template-columns:1fr}
+            .time-grid{grid-template-columns:1fr}
+            .header-left .app-title{font-size:15px}
+            .stat-value{font-size:20px}
+            .flex{flex-direction:column}
+            .flex .btn{width:100%}
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🚗 <span>Write4U</span></h1>
+                <p>CARS24 DSA Employee Portal</p>
+            </div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="employeeId">Employee ID</label>
+                    <input type="text" id="employeeId" placeholder="e.g., Employee 1 or 1" />
+                </div>
+                <div class="form-group">
+                    <label for="pin">PIN</label>
+                    <input type="password" id="pin" placeholder="Enter PIN" />
+                </div>
+                <button id="loginBtn" class="btn btn-primary">Login</button>
+                <div id="loginError" class="error-message"></div>
+                <div id="loginSuccess" class="success-message"></div>
+                
+                <div id="debugBox" class="debug-box">
+                    <div id="debugContent">Ready...</div>
+                </div>
+                <button id="debugToggleBtn" class="btn btn-outline btn-sm" style="margin-top:12px;width:auto;">
+                    <i class="fas fa-bug"></i> Toggle Debug
+                </button>
+            </div>
+            <div class="footer">Version 1.0.0</div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN APP ===== -->
+    <div id="mainApp" class="screen">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <span class="app-title">🚗 Write4U</span>
+                <span class="app-version">v1.0</span>
+            </div>
+            <div class="header-center">
+                <span class="employee-badge">
+                    <i class="fas fa-user"></i>
+                    <span id="employeeName">Employee</span>
+                    <span id="employeeEmail" style="font-size:12px;color:#64748b;font-weight:400;"></span>
+                </span>
+            </div>
+            <div class="header-right">
+                <button id="profileBtn" class="btn btn-outline btn-sm" title="Profile"><i class="fas fa-user-circle"></i></button>
+                <button id="logoutBtn" class="btn btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-item active" data-view="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
+            <button class="nav-item" data-view="leads"><i class="fas fa-users"></i> Assigned Leads</button>
+            <button class="nav-item" data-view="reports"><i class="fas fa-file-alt"></i> Reports</button>
+            <button class="nav-item" data-view="employees" id="employeesNav" style="display:none;"><i class="fas fa-user-cog"></i> Employees</button>
+        </nav>
+
+        <!-- Content -->
+        <main class="app-content">
+            
+            <!-- ===== DASHBOARD ===== -->
+            <div id="dashboardView" class="view active">
+                <div class="view-header">
+                    <h2><i class="fas fa-chart-pie"></i> Dashboard</h2>
+                    <button id="refreshBtn" class="btn btn-outline btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                <div class="grid-4">
+                    <div class="stat-card"><div class="stat-value" id="assignedCount">0</div><div class="stat-label">Assigned</div></div>
+                    <div class="stat-card"><div class="stat-value" id="callsMade">0</div><div class="stat-label">Calls Made</div></div>
+                    <div class="stat-card"><div class="stat-value" id="pendingCount">0</div><div class="stat-label">Pending</div></div>
+                    <div class="stat-card"><div class="stat-value" id="disposedCount">0</div><div class="stat-label">Disposed</div></div>
+                </div>
+                <div class="time-grid">
+                    <div class="time-card"><div class="time-label">Working Time</div><div class="time-value" id="workingTime">0h 0m</div></div>
+                    <div class="time-card"><div class="time-label">Break Time</div><div class="time-value" id="breakTime">0h 0m</div></div>
+                    <div class="time-card"><div class="time-label">Inactive Time</div><div class="time-value" id="inactiveTime">0h 0m</div></div>
+                    <div class="time-card highlight"><div class="time-label">Net Productive</div><div class="time-value" id="netProductiveTime">0h 0m</div></div>
+                </div>
+            </div>
+
+            <!-- ===== LEADS ===== -->
+            <div id="leadsView" class="view">
+                <div class="view-header">
+                    <h2><i class="fas fa-list"></i> Assigned Leads</h2>
+                    <button id="refreshLeadsBtn" class="btn btn-outline btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                <div id="leadsList" class="leads-list">
+                    <div class="text-muted text-center" style="padding:40px;">Loading leads...</div>
+                </div>
+            </div>
+
+            <!-- ===== LEAD DETAIL ===== -->
+            <div id="leadDetailView" class="view">
+                <div class="view-header">
+                    <button id="backToLeads" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</button>
+                    <span id="leadDetailTitle" style="font-weight:600;font-size:18px;">Lead Details</span>
+                </div>
+                <div class="lead-detail-grid">
+                    <div class="info-card">
+                        <h3><i class="fas fa-user"></i> Customer Information</h3>
+                        <div class="info-row"><span class="info-label">Lead Number</span><span class="info-value" id="detailLeadNumber">-</span></div>
+                        <div class="info-row"><span class="info-label">Customer</span><span class="info-value" id="detailCustomerName">-</span></div>
+                        <div class="info-row"><span class="info-label">Phone</span><span class="info-value" id="detailPhone">-</span></div>
+                        <div class="info-row"><span class="info-label">Address</span><span class="info-value" id="detailAddress">-</span></div>
+                        <div class="info-row"><span class="info-label">Vehicle</span><span class="info-value" id="detailVehicle">-</span></div>
+                        <div class="info-row"><span class="info-label">Assigned To</span><span class="info-value" id="detailAssignedTo">-</span></div>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-edit"></i> Update Lead</h3>
+                        <div class="form-group">
+                            <label for="editCallStatus">Call Status</label>
+                            <select id="editCallStatus" class="form-control">
+                                <option value="">Select Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Follow-up">Follow-up</option>
+                                <option value="Booked - Home Inspection">Booked - Home Inspection</option>
+                                <option value="Booked - Warehouse Inspection">Booked - Warehouse Inspection</option>
+                                <option value="Duplicate">Duplicate</option>
+                                <option value="Incorrect Number">Incorrect Number</option>
+                                <option value="Not Interested">Not Interested</option>
+                                <option value="Unattended">Unattended</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" id="followupGroup">
+                            <label for="editFollowupDate">Follow-up Date & Time</label>
+                            <input type="datetime-local" id="editFollowupDate" class="form-control" />
+                        </div>
+                        <div class="form-group hidden" id="bookingGroup">
+                            <label for="editBookingDate">Booking Date & Time</label>
+                            <input type="datetime-local" id="editBookingDate" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editRemarks">Remarks</label>
+                            <textarea id="editRemarks" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="flex">
+                            <button id="saveLeadBtn" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                            <button id="saveAndNextBtn" class="btn btn-success"><i class="fas fa-arrow-right"></i> Save & Next</button>
+                            <button id="breakBtn" class="btn btn-warning"><i class="fas fa-coffee"></i> Break</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== REPORTS ===== -->
+            <div id="reportsView" class="view">
+                <div class="view-header">
+                    <h2><i class="fas fa-file-alt"></i> Reports</h2>
+                </div>
+                <div class="report-grid">
+                    <div class="report-card">
+                        <h4>📊 Daily Performance</h4>
+                        <div class="report-content">
+                            <div class="report-stat"><span class="report-label">Calls Made</span><span class="report-value" id="reportDailyCalls">0</span></div>
+                            <div class="report-stat"><span class="report-label">Bookings</span><span class="report-value" id="reportDailyBookings">0</span></div>
+                            <div class="report-stat"><span class="report-label">Disposed</span><span class="report-value" id="reportDailyDisposed">0</span></div>
+                            <div class="report-stat"><span class="report-label">Working Time</span><span class="report-value" id="reportDailyWorking">0h</span></div>
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <h4>📈 Monthly Performance</h4>
+                        <div class="report-content">
+                            <div class="report-stat"><span class="report-label">Projected Calls</span><span class="report-value" id="reportMonthlyCalls">0</span></div>
+                            <div class="report-stat"><span class="report-label">Projected Bookings</span><span class="report-value" id="reportMonthlyBookings">0</span></div>
+                            <div class="report-stat"><span class="report-label">Avg Calls/Hour</span><span class="report-value" id="reportCallsPerHour">0</span></div>
+                            <div class="report-stat"><span class="report-label">Efficiency</span><span class="report-value" id="reportEfficiency">0%</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== EMPLOYEES (Admin Only) ===== -->
+            <div id="employeesView" class="view">
+                <div class="view-header">
+                    <h2><i class="fas fa-user-cog"></i> Employee Management</h2>
+                    <button id="createEmployeeBtn" class="btn btn-primary" style="width:auto;display:none;"><i class="fas fa-plus"></i> Add Employee</button>
+                </div>
+                <div class="emp-grid">
+                    <div class="emp-section">
+                        <h3>📋 Available Employee IDs</h3>
+                        <div id="availableEmployeesList">
+                            <div class="text-muted">Loading...</div>
+                        </div>
+                        <h3 style="margin-top:20px;">👤 Active Employees</h3>
+                        <div id="activeEmployeesList">
+                            <div class="text-muted">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="emp-section">
+                        <h3>📧 Email Change Requests</h3>
+                        <div id="emailRequestsList">
+                            <div class="text-muted">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ===== BREAK OVERLAY ===== -->
+    <div id="breakOverlay" class="overlay" style="display:none;">
+        <div class="overlay-content">
+            <i class="fas fa-coffee break-icon"></i>
+            <h2>☕ On Break</h2>
+            <p>You are currently on break. Click below to resume work.</p>
+            <button id="resumeBtn" class="btn btn-primary" style="width:auto;padding:14px 40px;font-size:16px;background:#F59E0B;">
+                <i class="fas fa-play"></i> Resume Work
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== PROFILE MODAL ===== -->
+    <div id="profileModal" class="overlay" style="display:none;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1500;">
+        <div class="overlay-content" style="background:white;color:#1a1a2e;border-radius:16px;max-width:480px;width:100%;padding:0;max-height:90vh;overflow-y:auto;">
+            <div style="padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="font-size:18px;font-weight:600;display:flex;align-items:center;gap:10px;color:#1a1a2e;">
+                    <i class="fas fa-user-circle" style="color:#0057FF;"></i> My Profile
+                </h3>
+                <button onclick="closeProfileModal()" style="background:none;border:none;font-size:20px;color:#64748b;cursor:pointer;padding:4px 8px;border-radius:8px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="padding:24px;">
+                <div style="text-align:center;font-size:80px;color:#0057FF;margin-bottom:16px;">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="info-row"><span class="info-label">Employee ID</span><span class="info-value" id="profileEmployeeId">-</span></div>
+                <div class="info-row"><span class="info-label">Name</span><span class="info-value" id="profileName">-</span></div>
+                <div class="info-row"><span class="info-label">Email</span><span class="info-value" id="profileEmail">-</span></div>
+                <div class="info-row"><span class="info-label">Role</span><span class="info-value" id="profileRole">-</span></div>
+                <div class="info-row"><span class="info-label">Status</span><span class="info-value" id="profileStatus">-</span></div>
+                <div class="info-row"><span class="info-label">Join Date</span><span class="info-value" id="profileJoinDate">-</span></div>
+                <div class="info-row"><span class="info-label">Last Login</span><span class="info-value" id="profileLastLogin">-</span></div>
+                
+                <div style="margin-top:20px;padding-top:20px;border-top:2px solid #e2e8f0;">
+                    <h4 style="font-size:15px;font-weight:600;margin-bottom:12px;">Change Email</h4>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <input type="email" id="newEmailInput" placeholder="Enter new email" class="form-control" style="flex:1;min-width:200px;" />
+                        <button id="updateEmailBtn" class="btn btn-primary" style="width:auto;"><i class="fas fa-envelope"></i> Request</button>
+                    </div>
+                    <div id="emailChangeStatus" style="margin-top:8px;font-size:13px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toastContainer" class="toast-container"></div>
+</div>
+
+<script>
+// ============================================
+// COMPLETE JAVASCRIPT - FULL CRM
+// ============================================
+
+(function() {
+    'use strict';
+
+    // ===== STATE =====
+    var STATE = {
+        employeeId: null,
+        employeeName: null,
+        employeeEmail: null,
+        employeeRole: null,
+        currentLead: null,
+        leads: [],
+        onBreak: false,
+        isInactive: false,
+        inactiveTimer: null,
+        lastActivity: Date.now(),
+        employees: [],
+        emailRequests: []
+    };
+
+    // ===== DOM REFS =====
+    var DOM = {};
+
+    function cacheDOMElements() {
+        // Login
+        DOM.loginScreen = document.getElementById('loginScreen');
+        DOM.mainApp = document.getElementById('mainApp');
+        DOM.employeeIdInput = document.getElementById('employeeId');
+        DOM.pinInput = document.getElementById('pin');
+        DOM.loginBtn = document.getElementById('loginBtn');
+        DOM.loginError = document.getElementById('loginError');
+        DOM.loginSuccess = document.getElementById('loginSuccess');
+        DOM.debugBox = document.getElementById('debugBox');
+        DOM.debugContent = document.getElementById('debugContent');
+        DOM.debugToggleBtn = document.getElementById('debugToggleBtn');
+        
+        // Header
+        DOM.logoutBtn = document.getElementById('logoutBtn');
+        DOM.profileBtn = document.getElementById('profileBtn');
+        DOM.employeeName = document.getElementById('employeeName');
+        DOM.employeeEmail = document.getElementById('employeeEmail');
+        DOM.employeesNav = document.getElementById('employeesNav');
+        
+        // Navigation
+        DOM.navItems = document.querySelectorAll('.nav-item');
+        
+        // Views
+        DOM.views = {
+            dashboard: document.getElementById('dashboardView'),
+            leads: document.getElementById('leadsView'),
+            leadDetail: document.getElementById('leadDetailView'),
+            reports: document.getElementById('reportsView'),
+            employees: document.getElementById('employeesView')
+        };
+        
+        // Dashboard stats
+        DOM.stats = {
+            assigned: document.getElementById('assignedCount'),
+            callsMade: document.getElementById('callsMade'),
+            pending: document.getElementById('pendingCount'),
+            disposed: document.getElementById('disposedCount'),
+            workingTime: document.getElementById('workingTime'),
+            breakTime: document.getElementById('breakTime'),
+            inactiveTime: document.getElementById('inactiveTime'),
+            netProductiveTime: document.getElementById('netProductiveTime')
+        };
+        
+        // Leads
+        DOM.leadsList = document.getElementById('leadsList');
+        DOM.refreshLeadsBtn = document.getElementById('refreshLeadsBtn');
+        DOM.refreshBtn = document.getElementById('refreshBtn');
+        
+        // Lead detail
+        DOM.backToLeads = document.getElementById('backToLeads');
+        DOM.leadDetailTitle = document.getElementById('leadDetailTitle');
+        DOM.detailLeadNumber = document.getElementById('detailLeadNumber');
+        DOM.detailCustomerName = document.getElementById('detailCustomerName');
+        DOM.detailPhone = document.getElementById('detailPhone');
+        DOM.detailAddress = document.getElementById('detailAddress');
+        DOM.detailVehicle = document.getElementById('detailVehicle');
+        DOM.detailAssignedTo = document.getElementById('detailAssignedTo');
+        DOM.editCallStatus = document.getElementById('editCallStatus');
+        DOM.editFollowupDate = document.getElementById('editFollowupDate');
+        DOM.editBookingDate = document.getElementById('editBookingDate');
+        DOM.editRemarks = document.getElementById('editRemarks');
+        DOM.saveLeadBtn = document.getElementById('saveLeadBtn');
+        DOM.saveAndNextBtn = document.getElementById('saveAndNextBtn');
+        DOM.followupGroup = document.getElementById('followupGroup');
+        DOM.bookingGroup = document.getElementById('bookingGroup');
+        
+        // Break
+        DOM.breakOverlay = document.getElementById('breakOverlay');
+        DOM.resumeBtn = document.getElementById('resumeBtn');
+        DOM.breakBtn = document.getElementById('breakBtn');
+        
+        // Toast
+        DOM.toastContainer = document.getElementById('toastContainer');
+        
+        // Profile Modal
+        DOM.profileModal = document.getElementById('profileModal');
+        DOM.profileEmployeeId = document.getElementById('profileEmployeeId');
+        DOM.profileName = document.getElementById('profileName');
+        DOM.profileEmail = document.getElementById('profileEmail');
+        DOM.profileRole = document.getElementById('profileRole');
+        DOM.profileStatus = document.getElementById('profileStatus');
+        DOM.profileJoinDate = document.getElementById('profileJoinDate');
+        DOM.profileLastLogin = document.getElementById('profileLastLogin');
+        DOM.updateEmailBtn = document.getElementById('updateEmailBtn');
+        DOM.newEmailInput = document.getElementById('newEmailInput');
+        DOM.emailChangeStatus = document.getElementById('emailChangeStatus');
+        
+        // Employee Management
+        DOM.availableEmployeesList = document.getElementById('availableEmployeesList');
+        DOM.activeEmployeesList = document.getElementById('activeEmployeesList');
+        DOM.emailRequestsList = document.getElementById('emailRequestsList');
+        DOM.createEmployeeBtn = document.getElementById('createEmployeeBtn');
+        
+        // Reports
+        DOM.reportDailyCalls = document.getElementById('reportDailyCalls');
+        DOM.reportDailyBookings = document.getElementById('reportDailyBookings');
+        DOM.reportDailyDisposed = document.getElementById('reportDailyDisposed');
+        DOM.reportDailyWorking = document.getElementById('reportDailyWorking');
+        DOM.reportMonthlyCalls = document.getElementById('reportMonthlyCalls');
+        DOM.reportMonthlyBookings = document.getElementById('reportMonthlyBookings');
+        DOM.reportCallsPerHour = document.getElementById('reportCallsPerHour');
+        DOM.reportEfficiency = document.getElementById('reportEfficiency');
+    }
+
+    // ===== DEBUG =====
+    var debugEnabled = false;
+
+    function logDebug(msg) {
+        console.log('[DEBUG]', msg);
+        if (DOM.debugContent && debugEnabled) {
+            DOM.debugContent.innerHTML += msg + '<br>';
+            DOM.debugBox.scrollTop = DOM.debugBox.scrollHeight;
+        }
+    }
+
+    function clearDebug() {
+        if (DOM.debugContent) {
+            DOM.debugContent.innerHTML = '';
+        }
+    }
+
+    // ===== TOAST =====
+    function showToast(message, type) {
+        type = type || 'info';
+        var icons = {success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle'};
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.innerHTML = '<i class="fas ' + icons[type] + ' toast-icon"></i><span class="toast-message">' + message + '</span>';
+        DOM.toastContainer.appendChild(toast);
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 4000);
+    }
+
+    // ===== VIEW =====
+    function showView(viewName) {
+        Object.values(DOM.views).forEach(function(el) { el.classList.remove('active'); });
+        if (DOM.views[viewName]) DOM.views[viewName].classList.add('active');
+        DOM.navItems.forEach(function(item) {
+            item.classList.toggle('active', item.dataset.view === viewName);
+        });
+        logDebug('📂 View: ' + viewName);
+    }
+
+    function formatTime(minutes) {
+        if (!minutes || minutes < 0) return '0h 0m';
+        var h = Math.floor(minutes / 60);
+        var m = Math.floor(minutes % 60);
+        return h + 'h ' + m + 'm';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ===== LOGIN =====
+    function handleLogin() {
+        var employeeId = DOM.employeeIdInput.value.trim();
+        var pin = DOM.pinInput.value.trim();
+
+        clearDebug();
+        logDebug('📝 Login attempt: ' + employeeId + ' / ' + pin);
+
+        if (!employeeId || !pin) {
+            DOM.loginError.textContent = 'Please enter both Employee ID and PIN';
+            return;
+        }
+
+        DOM.loginBtn.disabled = true;
+        DOM.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        DOM.loginError.textContent = '';
+        DOM.loginSuccess.textContent = '';
+
+        logDebug('📞 Calling google.script.run...');
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                DOM.loginBtn.disabled = false;
+                DOM.loginBtn.innerHTML = 'Login';
+                logDebug('✅ Response: ' + JSON.stringify(result));
+
+                if (result.success) {
+                    STATE.employeeId = result.data.employeeId;
+                    STATE.employeeName = result.data.name;
+                    STATE.employeeRole = result.data.role;
+
+                    DOM.employeeName.textContent = STATE.employeeName;
+                    DOM.employeeEmail.textContent = '';
+
+                    if (STATE.employeeRole === 'Admin') {
+                        DOM.employeesNav.style.display = 'flex';
+                    }
+
+                    DOM.loginScreen.classList.remove('active');
+                    DOM.mainApp.classList.add('active');
+
+                    showView('dashboard');
+                    loadDashboard();
+                    loadLeads();
+                    startInactiveTracker();
+
+                    DOM.loginSuccess.textContent = '✅ Welcome, ' + STATE.employeeName + '!';
+                    showToast('Welcome, ' + STATE.employeeName + '!', 'success');
+                    logDebug('✅ Login successful');
+                } else {
+                    DOM.loginError.textContent = result.message || 'Login failed';
+                    showToast(result.message || 'Login failed', 'error');
+                    logDebug('❌ Login failed: ' + result.message);
+                }
+            })
+            .withFailureHandler(function(error) {
+                DOM.loginBtn.disabled = false;
+                DOM.loginBtn.innerHTML = 'Login';
+                DOM.loginError.textContent = 'Error: ' + error.message;
+                showToast('Error: ' + error.message, 'error');
+                logDebug('❌ Error: ' + error);
+            })
+            .authenticateUser(employeeId, pin);
+    }
+
+    // ===== LOGOUT =====
+    function handleLogout() {
+        if (!confirm('Are you sure you want to logout?')) return;
+
+        google.script.run
+            .withSuccessHandler(function() {
+                STATE.employeeId = null;
+                STATE.employeeName = null;
+                DOM.mainApp.classList.remove('active');
+                DOM.loginScreen.classList.add('active');
+                DOM.employeeIdInput.value = '';
+                DOM.pinInput.value = '';
+                DOM.loginError.textContent = '';
+                DOM.loginSuccess.textContent = '';
+                stopInactiveTracker();
+                showToast('Logged out successfully', 'success');
+                logDebug('✅ Logged out');
+            })
+            .withFailureHandler(function(error) {
+                showToast('Logout error', 'error');
+                logDebug('❌ Logout error: ' + error);
+            })
+            .logoutUser(STATE.employeeId);
+    }
+
+    // ===== PROFILE =====
+    function showProfile() {
+        if (!STATE.employeeId) return;
+        
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    var emp = result.data;
+                    DOM.profileEmployeeId.textContent = emp.employeeId || '-';
+                    DOM.profileName.textContent = emp.name || '-';
+                    DOM.profileEmail.textContent = emp.email || '-';
+                    DOM.profileRole.textContent = emp.role || '-';
+                    DOM.profileStatus.textContent = emp.status || '-';
+                    DOM.profileJoinDate.textContent = emp.joinDate || '-';
+                    DOM.profileLastLogin.textContent = emp.lastLogin || '-';
+                    DOM.profileModal.style.display = 'flex';
+                    logDebug('👤 Profile loaded');
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error loading profile', 'error');
+                logDebug('❌ Profile error: ' + error);
+            })
+            .getEmployeeDetails(STATE.employeeId);
+    }
+
+    function closeProfileModal() {
+        DOM.profileModal.style.display = 'none';
+    }
+
+    // ===== DASHBOARD =====
+    function loadDashboard() {
+        if (!STATE.employeeId) return;
+        logDebug('📊 Loading dashboard');
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    var d = result.data;
+                    DOM.stats.assigned.textContent = d.assigned || 0;
+                    DOM.stats.callsMade.textContent = d.callsMade || 0;
+                    DOM.stats.pending.textContent = d.pending || 0;
+                    DOM.stats.disposed.textContent = d.disposed || 0;
+                    DOM.stats.workingTime.textContent = formatTime(d.workingTime);
+                    DOM.stats.breakTime.textContent = formatTime(d.breakTime);
+                    DOM.stats.inactiveTime.textContent = formatTime(d.inactiveTime);
+                    DOM.stats.netProductiveTime.textContent = formatTime(d.netProductiveTime);
+                    updateReports(d);
+                    logDebug('✅ Dashboard loaded');
+                }
+            })
+            .withFailureHandler(function(error) {
+                logDebug('❌ Dashboard error: ' + error);
+            })
+            .getDashboardStats(STATE.employeeId);
+    }
+
+    function updateReports(d) {
+        if (!d) return;
+        var calls = d.callsMade || 0;
+        var bookings = (d.bookedHome || 0) + (d.bookedWarehouse || 0);
+        var disposed = d.disposed || 0;
+        var workingHours = (d.workingTime || 0) / 60;
+        
+        DOM.reportDailyCalls.textContent = calls;
+        DOM.reportDailyBookings.textContent = bookings;
+        DOM.reportDailyDisposed.textContent = disposed;
+        DOM.reportDailyWorking.textContent = workingHours.toFixed(1) + 'h';
+        
+        var monthlyCalls = Math.round(calls * 22);
+        var monthlyBookings = Math.round(bookings * 22);
+        var callsPerHour = workingHours > 0 ? Math.round(calls / workingHours) : 0;
+        var efficiency = calls > 0 ? Math.round((bookings / calls) * 100) : 0;
+        
+        DOM.reportMonthlyCalls.textContent = monthlyCalls;
+        DOM.reportMonthlyBookings.textContent = monthlyBookings;
+        DOM.reportCallsPerHour.textContent = callsPerHour;
+        DOM.reportEfficiency.textContent = efficiency + '%';
+    }
+
+    // ===== LEADS =====
+    function loadLeads() {
+        if (!STATE.employeeId) return;
+        logDebug('📋 Loading leads');
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    STATE.leads = result.data || [];
+                    renderLeads();
+                    logDebug('✅ Loaded ' + STATE.leads.length + ' leads');
+                } else {
+                    showToast(result.message || 'Failed to load leads', 'error');
+                    logDebug('❌ Leads error: ' + result.message);
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error loading leads', 'error');
+                logDebug('❌ Leads error: ' + error);
+            })
+            .getAssignedLeads(STATE.employeeId);
+    }
+
+    function renderLeads() {
+        if (!DOM.leadsList) return;
+
+        if (!STATE.leads || STATE.leads.length === 0) {
+            DOM.leadsList.innerHTML = '<div class="text-muted text-center" style="padding:60px 20px;"><i class="fas fa-inbox" style="font-size:48px;display:block;margin-bottom:16px;color:#e2e8f0;"></i><h3 style="font-weight:600;margin-bottom:8px;">No Leads Assigned</h3><p>You don\'t have any leads assigned at the moment.</p></div>';
+            return;
+        }
+
+        var html = '';
+        STATE.leads.forEach(function(lead) {
+            var status = lead.callStatus || 'Pending';
+            var statusClass = 'status-pending';
+            if (status === 'Follow-up') statusClass = 'status-followup';
+            else if (status !== 'Pending' && status !== '') statusClass = 'status-done';
+            
+            html += '<div class="lead-item" data-lead="' + lead.leadNumber + '">' +
+                '<div class="lead-item-info">' +
+                '<span class="lead-item-name">' + escapeHtml(lead.customerName || 'Unknown') + '</span>' +
+                '<span class="lead-item-details">' + escapeHtml(lead.leadNumber || '') + ' • ' + escapeHtml(lead.phone || 'No phone') + ' • ' + escapeHtml(lead.vehicle || 'No vehicle') + '</span>' +
+                '</div>' +
+                '<div class="lead-item-right">' +
+                '<span class="status-badge ' + statusClass + '">' + escapeHtml(status) + '</span>' +
+                '<i class="fas fa-chevron-right" style="color:#94a3b8;"></i>' +
+                '</div>' +
+                '</div>';
+        });
+
+        DOM.leadsList.innerHTML = html;
+
+        DOM.leadsList.querySelectorAll('.lead-item').forEach(function(el) {
+            el.addEventListener('click', function() {
+                var leadNumber = this.dataset.lead;
+                openLeadDetail(leadNumber);
+            });
+        });
+    }
+
+    // ===== LEAD DETAIL =====
+    function openLeadDetail(leadNumber) {
+        logDebug('📂 Opening lead: ' + leadNumber);
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    STATE.currentLead = result.data;
+                    DOM.leadDetailTitle.textContent = 'Lead ' + leadNumber;
+                    renderLeadDetail();
+                    showView('leadDetail');
+                    logDebug('✅ Lead opened: ' + leadNumber);
+                } else {
+                    showToast(result.message || 'Failed to load lead', 'error');
+                    logDebug('❌ Lead error: ' + result.message);
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error loading lead details', 'error');
+                logDebug('❌ Lead error: ' + error);
+            })
+            .getLeadDetails(STATE.employeeId, leadNumber);
+    }
+
+    function renderLeadDetail() {
+        var lead = STATE.currentLead;
+        if (!lead) return;
+
+        DOM.detailLeadNumber.textContent = lead.leadNumber || '-';
+        DOM.detailCustomerName.textContent = lead.customerName || '-';
+        DOM.detailPhone.textContent = lead.phone || '-';
+        DOM.detailAddress.textContent = lead.address || '-';
+        DOM.detailVehicle.textContent = lead.vehicle || '-';
+        DOM.detailAssignedTo.textContent = lead.assignedTo || '-';
+
+        DOM.editCallStatus.value = lead.callStatus || '';
+        DOM.editFollowupDate.value = lead.followupDate || '';
+        DOM.editBookingDate.value = lead.bookingDate || '';
+        DOM.editRemarks.value = lead.remarks || '';
+
+        updateDynamicFields(lead.callStatus || '');
+    }
+
+    function updateDynamicFields(status) {
+        DOM.followupGroup.classList.toggle('hidden', status !== 'Follow-up');
+        DOM.bookingGroup.classList.toggle('hidden', !status.includes('Booked'));
+    }
+
+    DOM.editCallStatus.addEventListener('change', function() {
+        updateDynamicFields(this.value);
+    });
+
+    // ===== SAVE =====
+    function saveLead(andNext) {
+        if (!STATE.currentLead) {
+            showToast('No lead loaded', 'warning');
+            return;
+        }
+
+        var leadData = {
+            leadNumber: STATE.currentLead.leadNumber,
+            callStatus: DOM.editCallStatus.value,
+            remarks: DOM.editRemarks.value,
+            followupDate: DOM.editFollowupDate.value || '',
+            bookingDate: DOM.editBookingDate.value || ''
+        };
+
+        logDebug('💾 Saving lead: ' + JSON.stringify(leadData));
+
+        if (leadData.callStatus === 'Follow-up' && !leadData.followupDate) {
+            showToast('Please select a Follow-up date', 'warning');
+            return;
+        }
+        if (leadData.callStatus.includes('Booked') && !leadData.bookingDate) {
+            showToast('Please select a Booking date', 'warning');
+            return;
+        }
+
+        var saveFn = andNext ? 'saveAndNext' : 'saveLead';
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    showToast(result.message || 'Lead saved successfully', 'success');
+                    logDebug('✅ Lead saved');
+                    if (andNext && result.nextLead) {
+                        openLeadDetail(result.nextLead.leadNumber);
+                    } else if (andNext && !result.nextLead) {
+                        showToast('All leads completed!', 'success');
+                        showView('leads');
+                        loadLeads();
+                    } else {
+                        loadLeads();
+                        loadDashboard();
+                    }
+                } else {
+                    showToast(result.message || 'Save failed', 'error');
+                    logDebug('❌ Save failed: ' + result.message);
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error saving lead', 'error');
+                logDebug('❌ Save error: ' + error);
+            })
+            [saveFn](STATE.employeeId, leadData);
+    }
+
+    // ===== BREAK =====
+    function toggleBreak() {
+        if (STATE.onBreak) {
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        STATE.onBreak = false;
+                        DOM.breakOverlay.style.display = 'none';
+                        showToast('Break ended', 'success');
+                        loadDashboard();
+                        logDebug('✅ Break ended');
+                    } else {
+                        showToast(result.message || 'Failed to end break', 'error');
+                        logDebug('❌ Break end failed: ' + result.message);
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    showToast('Error ending break', 'error');
+                    logDebug('❌ Break end error: ' + error);
+                })
+                .endBreak(STATE.employeeId);
+        } else {
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        STATE.onBreak = true;
+                        DOM.breakOverlay.style.display = 'flex';
+                        showToast('Break started', 'info');
+                        loadDashboard();
+                        logDebug('✅ Break started');
+                    } else {
+                        showToast(result.message || 'Failed to start break', 'error');
+                        logDebug('❌ Break start failed: ' + result.message);
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    showToast('Error starting break', 'error');
+                    logDebug('❌ Break start error: ' + error);
+                })
+                .startBreak(STATE.employeeId);
+        }
+    }
+
+    // ===== INACTIVE TRACKER =====
+    function startInactiveTracker() {
+        STATE.lastActivity = Date.now();
+        document.addEventListener('mousemove', resetInactiveTimer);
+        document.addEventListener('keydown', resetInactiveTimer);
+        document.addEventListener('click', resetInactiveTimer);
+        document.addEventListener('scroll', resetInactiveTimer);
+        STATE.inactiveTimer = setInterval(checkInactive, 30000);
+        logDebug('⏱️ Inactive tracker started');
+    }
+
+    function stopInactiveTracker() {
+        document.removeEventListener('mousemove', resetInactiveTimer);
+        document.removeEventListener('keydown', resetInactiveTimer);
+        document.removeEventListener('click', resetInactiveTimer);
+        document.removeEventListener('scroll', resetInactiveTimer);
+        if (STATE.inactiveTimer) {
+            clearInterval(STATE.inactiveTimer);
+            STATE.inactiveTimer = null;
+        }
+        logDebug('⏱️ Inactive tracker stopped');
+    }
+
+    function resetInactiveTimer() {
+        STATE.lastActivity = Date.now();
+        if (STATE.isInactive) {
+            google.script.run
+                .withSuccessHandler(function() {
+                    STATE.isInactive = false;
+                    showToast('Resumed from inactive', 'info');
+                    loadDashboard();
+                    logDebug('✅ Inactive ended');
+                })
+                .withFailureHandler(function() {
+                    logDebug('❌ Failed to end inactive');
+                })
+                .logInactive(STATE.employeeId, null, new Date());
+        }
+    }
+
+    function checkInactive() {
+        if (STATE.onBreak) return;
+        var inactiveTime = (Date.now() - STATE.lastActivity) / 60000;
+        if (inactiveTime >= 10 && !STATE.isInactive) {
+            google.script.run
+                .withSuccessHandler(function() {
+                    STATE.isInactive = true;
+                    showToast('Marked as inactive due to no activity', 'warning');
+                    loadDashboard();
+                    logDebug('⏱️ Inactive started');
+                })
+                .withFailureHandler(function() {
+                    logDebug('❌ Failed to log inactive');
+                })
+                .logInactive(STATE.employeeId, new Date(), null);
+        }
+    }
+
+    // ===== EMPLOYEE MANAGEMENT =====
+    function loadEmployees() {
+        if (STATE.employeeRole !== 'Admin') {
+            logDebug('⚠️ Not admin, skipping employee management');
+            return;
+        }
+        logDebug('👥 Loading employee management');
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    STATE.employees = result.data;
+                    renderActiveEmployees();
+                    loadAvailableEmployees();
+                    loadEmailRequests();
+                    logDebug('✅ Employees loaded: ' + STATE.employees.length);
+                }
+            })
+            .withFailureHandler(function(error) {
+                logDebug('❌ Employees error: ' + error);
+            })
+            .getAllEmployees();
+    }
+
+    function renderActiveEmployees() {
+        if (!DOM.activeEmployeesList) return;
+        var active = STATE.employees.filter(function(e) { 
+            return e.status && e.status.toLowerCase() === 'active' && e.name;
+        });
+        
+        if (active.length === 0) {
+            DOM.activeEmployeesList.innerHTML = '<div class="text-muted">No active employees</div>';
+            return;
+        }
+        
+        DOM.activeEmployeesList.innerHTML = active.map(function(emp) {
+            return '<div class="emp-item">' +
+                '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+                '<span class="emp-id">' + escapeHtml(emp.employeeId) + '</span>' +
+                '<span class="emp-name">' + escapeHtml(emp.name) + '</span>' +
+                '<span class="emp-email">' + escapeHtml(emp.email) + '</span>' +
+                '<span class="emp-role">' + escapeHtml(emp.role) + '</span>' +
+                '<span class="emp-status active">● Active</span>' +
+                '</div>' +
+                '<div class="emp-actions">' +
+                '<button class="btn btn-outline btn-sm deactivate-emp" data-id="' + emp.employeeId + '"><i class="fas fa-user-slash"></i></button>' +
+                '<button class="btn btn-outline btn-sm view-profile-btn" data-id="' + emp.employeeId + '"><i class="fas fa-user"></i></button>' +
+                '</div>' +
+                '</div>';
+        }).join('');
+
+        DOM.activeEmployeesList.querySelectorAll('.deactivate-emp').forEach(function(btn) {
+            btn.addEventListener('click', function() { deactivateEmployee(this.dataset.id); });
+        });
+        DOM.activeEmployeesList.querySelectorAll('.view-profile-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() { showEmployeeProfile(this.dataset.id); });
+        });
+    }
+
+    function loadAvailableEmployees() {
+        if (STATE.employeeRole !== 'Admin') return;
+        
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    renderAvailableEmployees(result.data);
+                }
+            })
+            .withFailureHandler(function(error) {
+                logDebug('❌ Available employees error: ' + error);
+            })
+            .getAllAvailableEmployees();
+    }
+
+    function renderAvailableEmployees(available) {
+        if (!DOM.availableEmployeesList) return;
+        if (!available || available.length === 0) {
+            DOM.availableEmployeesList.innerHTML = '<div class="text-muted">No available IDs</div>';
+            return;
+        }
+        
+        DOM.availableEmployeesList.innerHTML = available.map(function(emp) {
+            return '<div class="emp-item">' +
+                '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+                '<span class="emp-id">' + escapeHtml(emp.employeeId) + '</span>' +
+                '<span class="emp-status inactive">● Available</span>' +
+                (emp.currentName ? '<span style="color:#64748b;font-size:13px;">(was: ' + escapeHtml(emp.currentName) + ')</span>' : '') +
+                '</div>' +
+                '<button class="btn btn-primary btn-sm assign-emp" data-id="' + emp.employeeId + '"><i class="fas fa-user-plus"></i> Assign</button>' +
+                '</div>';
+        }).join('');
+
+        DOM.availableEmployeesList.querySelectorAll('.assign-emp').forEach(function(btn) {
+            btn.addEventListener('click', function() { showAssignModal(this.dataset.id); });
+        });
+    }
+
+    function showAssignModal(employeeId) {
+        var name = prompt('Enter name for ' + employeeId + ':');
+        if (!name) return;
+        var email = prompt('Enter email:');
+        if (!email) return;
+        var role = prompt('Enter role (Employee/Supervisor/Admin):', 'Employee');
+        if (!role) return;
+        var pin = prompt('Enter PIN (4 digits):', '1234');
+        if (!pin) return;
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    loadEmployees();
+                    loadAvailableEmployees();
+                } else {
+                    showToast(result.message || 'Failed to assign', 'error');
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error assigning employee', 'error');
+                logDebug('❌ Assign error: ' + error);
+            })
+            .assignEmployeeToId(STATE.employeeId, employeeId, {
+                name: name, email: email, role: role, pin: pin
+            });
+    }
+
+    function deactivateEmployee(employeeId) {
+        if (!confirm('Deactivate ' + employeeId + '? This will make the ID available for new hires.')) return;
+        
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    loadEmployees();
+                    loadAvailableEmployees();
+                } else {
+                    showToast(result.message || 'Failed to deactivate', 'error');
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error deactivating employee', 'error');
+                logDebug('❌ Deactivate error: ' + error);
+            })
+            .deactivateEmployee(STATE.employeeId, employeeId);
+    }
+
+    function showEmployeeProfile(employeeId) {
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    var emp = result.data;
+                    DOM.profileEmployeeId.textContent = emp.employeeId || '-';
+                    DOM.profileName.textContent = emp.name || '-';
+                    DOM.profileEmail.textContent = emp.email || '-';
+                    DOM.profileRole.textContent = emp.role || '-';
+                    DOM.profileStatus.textContent = emp.status || '-';
+                    DOM.profileJoinDate.textContent = emp.joinDate || '-';
+                    DOM.profileLastLogin.textContent = emp.lastLogin || '-';
+                    DOM.profileModal.style.display = 'flex';
+                    DOM.updateEmailBtn.style.display = emp.employeeId === STATE.employeeId ? 'inline-flex' : 'none';
+                    DOM.newEmailInput.style.display = emp.employeeId === STATE.employeeId ? 'block' : 'none';
+                    logDebug('👤 Profile loaded for: ' + employeeId);
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error loading profile', 'error');
+                logDebug('❌ Profile error: ' + error);
+            })
+            .getEmployeeDetails(employeeId);
+    }
+
+    function loadEmailRequests() {
+        if (STATE.employeeRole !== 'Admin') return;
+        
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    STATE.emailRequests = result.data;
+                    renderEmailRequests();
+                }
+            })
+            .withFailureHandler(function(error) {
+                logDebug('❌ Email requests error: ' + error);
+            })
+            .getEmailChangeRequests(STATE.employeeId);
+    }
+
+    function renderEmailRequests() {
+        if (!DOM.emailRequestsList) return;
+        if (STATE.emailRequests.length === 0) {
+            DOM.emailRequestsList.innerHTML = '<div class="text-muted">No pending requests</div>';
+            return;
+        }
+        
+        DOM.emailRequestsList.innerHTML = STATE.emailRequests.map(function(req) {
+            return '<div class="email-request-item">' +
+                '<div class="req-info">' +
+                '<span class="req-id">' + escapeHtml(req.requestId) + '</span>' +
+                '<span style="font-weight:500;">' + escapeHtml(req.employeeId) + '</span>' +
+                '<span class="req-old">' + escapeHtml(req.oldEmail) + '</span>' +
+                '<span class="req-new">→ ' + escapeHtml(req.newEmail) + '</span>' +
+                '</div>' +
+                '<div style="display:flex;gap:6px;">' +
+                '<button class="btn btn-success btn-sm approve-email" data-id="' + req.requestId + '"><i class="fas fa-check"></i></button>' +
+                '<button class="btn btn-danger btn-sm reject-email" data-id="' + req.requestId + '"><i class="fas fa-times"></i></button>' +
+                '</div>' +
+                '</div>';
+        }).join('');
+
+        DOM.emailRequestsList.querySelectorAll('.approve-email').forEach(function(btn) {
+            btn.addEventListener('click', function() { approveEmailRequest(this.dataset.id); });
+        });
+        DOM.emailRequestsList.querySelectorAll('.reject-email').forEach(function(btn) {
+            btn.addEventListener('click', function() { rejectEmailRequest(this.dataset.id); });
+        });
+    }
+
+    function approveEmailRequest(requestId) {
+        if (!confirm('Approve this email change request?')) return;
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) { showToast(result.message, 'success'); loadEmailRequests(); loadEmployees(); }
+                else { showToast(result.message || 'Failed to approve', 'error'); }
+            })
+            .withFailureHandler(function(error) { showToast('Error approving email change', 'error'); })
+            .approveEmailChange(STATE.employeeId, requestId);
+    }
+
+    function rejectEmailRequest(requestId) {
+        if (!confirm('Reject this email change request?')) return;
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) { showToast(result.message, 'success'); loadEmailRequests(); }
+                else { showToast(result.message || 'Failed to reject', 'error'); }
+            })
+            .withFailureHandler(function(error) { showToast('Error rejecting email change', 'error'); })
+            .rejectEmailChange(STATE.employeeId, requestId);
+    }
+
+    function requestEmailChange() {
+        var newEmail = DOM.newEmailInput.value.trim();
+        if (!newEmail) { showToast('Please enter a new email address', 'warning'); return; }
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(newEmail)) { showToast('Please enter a valid email address', 'warning'); return; }
+        
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    DOM.newEmailInput.value = '';
+                    DOM.emailChangeStatus.textContent = '✅ Request submitted: ' + result.requestId;
+                    DOM.emailChangeStatus.style.color = '#16A34A';
+                } else {
+                    showToast(result.message || 'Failed to request email change', 'error');
+                    DOM.emailChangeStatus.textContent = '❌ ' + result.message;
+                    DOM.emailChangeStatus.style.color = '#DC2626';
+                }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error requesting email change', 'error');
+                logDebug('❌ Email request error: ' + error);
+            })
+            .requestEmailChange(STATE.employeeId, newEmail);
+    }
+
+    // ===== CREATE EMPLOYEE =====
+    function createEmployee() {
+        var name = prompt('Enter employee name:');
+        if (!name) return;
+        var email = prompt('Enter employee email:');
+        if (!email) return;
+        var role = prompt('Enter role (Employee/Supervisor/Admin):', 'Employee');
+        if (!role) return;
+        var pin = prompt('Enter PIN (4 digits):', '1234');
+        if (!pin) return;
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                if (result.success) { showToast(result.message, 'success'); loadEmployees(); }
+                else { showToast(result.message || 'Failed to create', 'error'); }
+            })
+            .withFailureHandler(function(error) {
+                showToast('Error creating employee', 'error');
+                logDebug('❌ Create error: ' + error);
+            })
+            .createEmployee({name: name, email: email, role: role, pin: pin});
+    }
+
+    // ===== NAVIGATION =====
+    function setupNavigation() {
+        DOM.navItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                var view = this.dataset.view;
+                if (view === 'dashboard') { showView('dashboard'); loadDashboard(); }
+                else if (view === 'leads') { showView('leads'); loadLeads(); }
+                else if (view === 'reports') { showView('reports'); loadDashboard(); }
+                else if (view === 'employees') { showView('employees'); loadEmployees(); }
+            });
+        });
+
+        DOM.backToLeads.addEventListener('click', function() {
+            showView('leads');
+            loadLeads();
+        });
+
+        DOM.refreshBtn.addEventListener('click', loadDashboard);
+        DOM.refreshLeadsBtn.addEventListener('click', loadLeads);
+    }
+
+    // ===== INIT =====
+    function init() {
+        cacheDOMElements();
+        setupNavigation();
+
+        logDebug('🚗 Write4U CRM v1.0 initialized');
+        logDebug('📋 Login with: Employee 1 / 1234');
+
+        // Login
+        DOM.loginBtn.addEventListener('click', handleLogin);
+        DOM.employeeIdInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') DOM.pinInput.focus();
+        });
+        DOM.pinInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        // Logout
+        DOM.logoutBtn.addEventListener('click', handleLogout);
+
+        // Profile
+        DOM.profileBtn.addEventListener('click', showProfile);
+        DOM.updateEmailBtn.addEventListener('click', requestEmailChange);
+        window.closeProfileModal = closeProfileModal;
+
+        // Break
+        DOM.breakBtn.addEventListener('click', toggleBreak);
+        DOM.resumeBtn.addEventListener('click', toggleBreak);
+
+        // Save
+        DOM.saveLeadBtn.addEventListener('click', function() { saveLead(false); });
+        DOM.saveAndNextBtn.addEventListener('click', function() { saveLead(true); });
+
+        // Debug toggle
+        DOM.debugToggleBtn.addEventListener('click', function() {
+            debugEnabled = !debugEnabled;
+            DOM.debugBox.classList.toggle('active');
+            this.innerHTML = debugEnabled ? '<i class="fas fa-bug"></i> Hide Debug' : '<i class="fas fa-bug"></i> Toggle Debug';
+            if (debugEnabled) {
+                logDebug('🔍 Debug mode enabled');
+                DOM.debugContent.innerHTML = '🔍 Debug mode enabled<br>';
+            }
+        });
+
+        // Offline
+        window.addEventListener('offline', function() {
+            showToast('🔴 You are offline. Waiting for connection...', 'error');
+        });
+        window.addEventListener('online', function() {
+            showToast('🟢 Back online!', 'success');
+            if (STATE.employeeId) {
+                loadDashboard();
+                loadLeads();
+                if (STATE.employeeRole === 'Admin') loadEmployees();
+            }
+        });
+
+        // Create Employee (Admin)
+        if (DOM.createEmployeeBtn) {
+            DOM.createEmployeeBtn.addEventListener('click', createEmployee);
+        }
+
+        // Show employee nav if already admin (session recovery)
+        if (STATE.employeeRole === 'Admin') {
+            DOM.employeesNav.style.display = 'flex';
+        }
+
+        console.log('🚗 Write4U CRM v1.0 loaded successfully!');
+        console.log('📋 Test login: Employee 1 / 1234');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+})();
+</script>
+</body>
+</html>
